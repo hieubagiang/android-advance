@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/drawable-v24/image_border.xml" value="0.124" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/layout/activity_main.xml" value="0.22780797101449277" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/layout/content_main.xml" value="0.1" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/layout/controls.xml" value="0.1" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/layout/mail.xml" value="0.11302083333333333" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/layout/main.xml" value="0.1" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/layout/sensors_data.xml" value="0.11302083333333333" />
+        <entry key="..\:/hieu/projects/android-study/android-java/Chuong 2/bai1camera/app/src/main/res/menu/menu_main.xml" value="0.11302083333333333" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
