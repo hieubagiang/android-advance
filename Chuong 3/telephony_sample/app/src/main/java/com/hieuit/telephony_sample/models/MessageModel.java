@@ -1,9 +1,11 @@
 package com.hieuit.telephony_sample.models;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.Serializable;
 
-public class MessageModel {
+public class MessageModel implements Serializable {
     private String phone;
     private String body;
     private Date time;

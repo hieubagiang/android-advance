@@ -8,25 +8,28 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
-import com.hieuit.telephony_sample.adapters.MessageListAdapter;
+import com.hieuit.telephony_sample.activities.ActivitySmsDetailedView;
+import com.hieuit.telephony_sample.adapters.MessageContactAdapter;
+import com.hieuit.telephony_sample.interfaces.RecyclerItemClickListener;
 import com.hieuit.telephony_sample.models.ContactModel;
 import com.hieuit.telephony_sample.models.MessageModel;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
     RecyclerView recyclerView;
-    MessageListAdapter customAdapter;
+    MessageContactAdapter customAdapter;
     ArrayList<ContactModel> contactModels;
 
     @Override
@@ -36,9 +39,25 @@ public class MainActivity extends AppCompatActivity {
 
         contactModels = new ArrayList<>();
         recyclerView = findViewById(R.id.recyclerviewChatList);
-        customAdapter = new MessageListAdapter(MainActivity.this,this,contactModels);
+        customAdapter = new MessageContactAdapter(MainActivity.this,contactModels);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        recyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(MainActivity.this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
+
+                    @Override public void onItemClick(View view, int position) {
+                        Log.e("hieudt","onItemClick" + position);
+                        Intent myIntent = new Intent(MainActivity.this, ActivitySmsDetailedView.class);
+                        myIntent.putExtra("contact", contactModels.get(position)); // sending our object. In Kotlin is the same
+                        startActivity(myIntent);
+
+                    }
+
+                    @Override public void onLongItemClick(View view, int position) {
+                        // do whatever
+                    }
+                })
+        );
 
 
         int permissionCheck = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_SMS);

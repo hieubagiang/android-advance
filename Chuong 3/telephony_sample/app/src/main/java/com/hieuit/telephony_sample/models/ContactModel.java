@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.io.Serializable;
 
-public class ContactModel {
+public class ContactModel implements Serializable {
     private String phone;
     private ArrayList<MessageModel> messages = new ArrayList<>();
     public ContactModel() {

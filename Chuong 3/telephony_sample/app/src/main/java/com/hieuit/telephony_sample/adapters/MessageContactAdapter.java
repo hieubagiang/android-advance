@@ -15,26 +15,28 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hieuit.telephony_sample.MainActivity;
 import com.hieuit.telephony_sample.R;
+import com.hieuit.telephony_sample.activities.ActivitySmsDetailedView;
 import com.hieuit.telephony_sample.models.ContactModel;
 import com.hieuit.telephony_sample.models.MessageModel;
 
 import java.util.ArrayList;
 
-public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.MyViewHolder> {
+public class MessageContactAdapter extends RecyclerView.Adapter<MessageContactAdapter.MyViewHolder> {
 
-    private Context context;
-    private ArrayList<MessageModel> messages;
+    private Activity activity;
+    private ArrayList<ContactModel> contactModels;
 
-    public MessageListAdapter(Context context,  ArrayList<MessageModel> messages) {
-        this.context = context;
-        this.messages = messages;
+    public MessageContactAdapter(MainActivity activity, ArrayList<ContactModel> contactModels) {
+        this.activity = activity;
+        this.contactModels = contactModels;
     }
+
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.single_sms_detailed, parent, false);
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        View view = inflater.inflate(R.layout.single_sms_small_layout, parent, false);
         return new MyViewHolder(view);
     }
 
@@ -45,24 +47,26 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 //        holder.txtHomeUrl.setText(String.valueOf(githubUserModels.get(position).getHtmlUrl()));
 //        DownloadImageTask task = new DownloadImageTask(holder.imgAvatar);
 //        task.execute(githubUserModels.get(position).getAvatarUrl());
-        MessageModel model = messages.get(position);
-        holder.txtSmsContent.setText(model.getBody());
-        holder.txtTime.setText(model.getLastTimeString());
+        ContactModel contactModel = contactModels.get(position);
+        holder.txtSender.setText(contactModel.getPhone());
+        holder.txtSmsContent.setText(contactModel.getMessages().isEmpty() ? "": contactModel.getMessages().get(0).getBody());
+        holder.txtTime.setText(contactModel.getMessages().get(0).getLastTimeString());
     }
 
     @Override
     public int getItemCount() {
-        return messages.size();
+        return contactModels.size();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView txtSmsContent, txtTime;
+        TextView txtSender, txtSmsContent, txtTime;
         ImageView imgAvatar;
         MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtSmsContent =(TextView)  itemView.findViewById(R.id.singleSmsDetailedMessage);
-            txtTime = (TextView) itemView.findViewById(R.id.singleSmsDetailedTime);
+            txtSender = itemView.findViewById(R.id.smsSender);
+            txtSmsContent = itemView.findViewById(R.id.smsContent);
+            txtTime = itemView.findViewById(R.id.time);
         }
 
     }
