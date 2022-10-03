@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,6 +23,9 @@ import com.hieuit.telephony_sample.MainActivity;
 import com.hieuit.telephony_sample.R;
 import com.hieuit.telephony_sample.adapters.MessageListAdapter;
 import com.hieuit.telephony_sample.models.ContactModel;
+import com.hieuit.telephony_sample.models.MessageModel;
+
+import java.util.Date;
 
 public class ActivitySmsDetailedView extends AppCompatActivity {
     private static final String LOG_TAG = "HieuLog";
@@ -31,6 +35,7 @@ public class ActivitySmsDetailedView extends AppCompatActivity {
     ContactModel contactModel;
     EditText editText;
     ImageView btnSend;
+    String currentPhoneNumber;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,15 +43,33 @@ public class ActivitySmsDetailedView extends AppCompatActivity {
 
         contactModel = (ContactModel) getIntent().getSerializableExtra("contact");
         recyclerView = findViewById(R.id.recyclerview);
-        customAdapter = new MessageListAdapter(ActivitySmsDetailedView.this,contactModel.getMessages());
+        customAdapter = new MessageListAdapter(ActivitySmsDetailedView.this, contactModel.getMessages());
         recyclerView.setAdapter(customAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ActivitySmsDetailedView.this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+
+        recyclerView.setLayoutManager(linearLayoutManager);
         btnSend = findViewById(R.id.sendButton);
         editText = findViewById(R.id.etMessage);
         btnSend.setOnClickListener(v -> {
             sendSMS_by_smsManager();
         });
-        askPermissionAndSendSMS(ActivitySmsDetailedView.this,this);
+        askPermissionAndSendSMS(ActivitySmsDetailedView.this, this);
+        TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        currentPhoneNumber = tMgr.getLine1Number();
+
     }
 
     private void askPermissionAndSendSMS(Activity activity, Context context) {
@@ -84,7 +107,7 @@ public class ActivitySmsDetailedView extends AppCompatActivity {
 
     private void sendSMS_by_smsManager()  {
 
-        String phoneNumber = contactModel.getPhone();
+        String phoneNumber = currentPhoneNumber;
         String message = this.editText.getText().toString();
         if(message.isEmpty()) return;
 //String message="";
@@ -92,15 +115,19 @@ public class ActivitySmsDetailedView extends AppCompatActivity {
             // Get the default instance of the SmsManager
             SmsManager smsManager = SmsManager.getDefault();
             // Send Message
-            smsManager.sendTextMessage(phoneNumber,
+            smsManager.sendTextMessage(contactModel.getPhone(),
                     null,
                     message,
                     null,
                     null);
+
             editText.setText("");
             Log.i( LOG_TAG,"Your sms has successfully sent!");
             Toast.makeText(getApplicationContext(),"Your sms has successfully sent!",
                     Toast.LENGTH_LONG).show();
+            MessageModel messageModel= new MessageModel(phoneNumber, message, new Date(System.currentTimeMillis()));
+            contactModel.addMessage(messageModel);
+            customAdapter.notifyDataSetChanged();
         } catch (Exception ex) {
             Log.e( LOG_TAG,"Your sms has failed...", ex);
             Toast.makeText(getApplicationContext(),"Your sms has failed... " + ex.getMessage(),
@@ -155,6 +182,21 @@ public class ActivitySmsDetailedView extends AppCompatActivity {
                 Toast.makeText(this, "Action Failed", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+
+    @Override
+    public void finish() {
+        Intent data = new Intent();
+        setResult(RESULT_OK, data);
+
+        super.finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        super.onBackPressed();
     }
 
 }

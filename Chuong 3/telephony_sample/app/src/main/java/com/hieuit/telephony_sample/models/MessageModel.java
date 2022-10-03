@@ -1,11 +1,21 @@
 package com.hieuit.telephony_sample.models;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.telephony.TelephonyManager;
+
+import androidx.core.app.ActivityCompat;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.io.Serializable;
 
-public class MessageModel implements Serializable {
+public class MessageModel implements Serializable, Comparator<MessageModel> {
     private String phone;
     private String body;
     private Date time;
@@ -20,13 +30,19 @@ public class MessageModel implements Serializable {
     }
 
 
-
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    @SuppressLint("MissingPermission")
+    public boolean isMe(Context context) {
+        TelephonyManager tMgr = (TelephonyManager) context  .getSystemService(Context.TELEPHONY_SERVICE);
+
+        return tMgr.getLine1Number().equals(phone);
     }
 
     public String getBody() {
@@ -37,7 +53,7 @@ public class MessageModel implements Serializable {
         this.body = body;
     }
 
-    public Date getLastTime() {
+    public Date getDate() {
         return time;
     }
 
@@ -59,4 +75,10 @@ public class MessageModel implements Serializable {
 
         return false;
     }
+
+    @Override
+    public int compare(MessageModel o1, MessageModel o2) {
+        return o2.time.compareTo(o1.time);
+    }
+
 }
