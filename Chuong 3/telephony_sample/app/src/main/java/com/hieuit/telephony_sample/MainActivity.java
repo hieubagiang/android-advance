@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -82,9 +83,22 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "You must accept this permission to display contacts", Toast.LENGTH_SHORT).show();
         }
     }
+    private  void showContact(){
+        getContact("content://sms/inbox");
+        getContact("content://sms/sent");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            contactModels.sort((o1, o2) -> {
+                if(o1.getMessages().size() > 0 && o2.getMessages().size() > 0){
+                    return o2.getMessages().get(0).getLastTime().compareTo(o1.getMessages().get(0).getLastTime());
+                }
+                return 0;
+            });
+        }
+        customAdapter.notifyDataSetChanged();
 
-    private void showContact(){
-        Uri uri = Uri.parse("content://sms/");
+    }
+    private void getContact(String contentPath){
+        Uri uri = Uri.parse(contentPath);
         Cursor c = getContentResolver().query(uri, null, null, null, "date desc");
         while (c.moveToNext()){
             ContactModel contactModel = new ContactModel();
