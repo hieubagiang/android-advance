@@ -29,13 +29,6 @@
         </receiver>
 
         <activity
-            android:name=".ActivitySmsDetailedView"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -51,7 +44,13 @@
                 <data android:mimeType="text/plain"/>
             </intent-filter>
         </activity>
-
+        <receiver android:name=".SmsReceiver"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

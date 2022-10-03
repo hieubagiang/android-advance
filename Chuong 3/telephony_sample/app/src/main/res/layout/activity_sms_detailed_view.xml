@@ -41,13 +41,13 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.6"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:hint="@string/write_message"
                 style="@style/App_EditTextStyle"
                 />
 
             <ImageView
-                android:id="@+id/btSend"
+                android:id="@+id/sendButton"
                 android:clickable="true"
                 android:layout_weight="0.4"
                 android:layout_width="0dp"
@@ -55,7 +55,8 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_action_sent_mail"
                 android:padding="10dp"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:focusable="true" />
 
         </LinearLayout>
 
