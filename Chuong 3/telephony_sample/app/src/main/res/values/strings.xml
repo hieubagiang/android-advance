@@ -23,5 +23,6 @@
     <string name="label_new_sms">New SMS</string>
     <string name="hint_phone">Enter Phone Number</string>
     <string name="hint_msg">Enter SMS</string>
-    <string name="action_send">Send Sms</string>
+    <string name="action_send_intent">Send Sms With Intent</string>
+    <string name="action_send_smsmanager">Send Sms With SMS manager</string>
 </resources>
