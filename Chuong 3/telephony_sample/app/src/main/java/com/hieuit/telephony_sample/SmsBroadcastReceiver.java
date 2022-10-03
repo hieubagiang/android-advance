@@ -14,9 +14,25 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-public class MyReceiver extends BroadcastReceiver {
+import com.hieuit.telephony_sample.interfaces.OnNewMessageListener;
+import com.hieuit.telephony_sample.models.ContactModel;
+import com.hieuit.telephony_sample.models.MessageModel;
+
+import java.util.Date;
+
+public class SmsBroadcastReceiver extends BroadcastReceiver {
+
+    OnNewMessageListener onNewMessageListener;
 
     private static final String ACTION = "android.provider.Telephony.SMS_RECEIVED";
+
+    public SmsBroadcastReceiver() {
+    }
+
+    public SmsBroadcastReceiver(OnNewMessageListener onNewMessageListener) {
+        this.onNewMessageListener = onNewMessageListener;
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -60,6 +76,14 @@ public class MyReceiver extends BroadcastReceiver {
                     // Log and display the SMS message.
                     Log.d(TAG, "onReceive: " + strMessage);
                     Toast.makeText(context, strMessage, Toast.LENGTH_LONG).show();
+                    String number = msgs[i].getOriginatingAddress();
+                    String body = msgs[i].getMessageBody();
+
+                    ContactModel contactModel = new ContactModel();
+                    contactModel.setPhone(number);
+                    contactModel.getMessages().add(new MessageModel(number,body,new Date(msgs[i].getTimestampMillis())));
+                    System.out.println(contactModel);
+                    onNewMessageListener.onNewMessageReceived(contactModel);
                 }
             }
         }

@@ -48,6 +48,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         MessageModel model = messages.get(position);
         holder.txtSmsContent.setText(model.getBody());
         holder.txtTime.setText(model.getLastTimeString());
+        holder.imgAvatar.setVisibility(model.isMe(context) ? View.INVISIBLE : View.VISIBLE);
     }
 
     @Override
@@ -63,6 +64,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
             super(itemView);
             txtSmsContent =(TextView)  itemView.findViewById(R.id.singleSmsDetailedMessage);
             txtTime = (TextView) itemView.findViewById(R.id.singleSmsDetailedTime);
+            imgAvatar = itemView.findViewById(R.id.smsImage);
         }
 
     }

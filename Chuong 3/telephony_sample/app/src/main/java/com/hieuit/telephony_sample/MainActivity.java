@@ -1,5 +1,11 @@
 package com.hieuit.telephony_sample;
 
+import static java.security.AccessController.getContext;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -20,18 +28,23 @@ import android.widget.Toast;
 
 import com.hieuit.telephony_sample.activities.ActivitySmsDetailedView;
 import com.hieuit.telephony_sample.adapters.MessageContactAdapter;
+import com.hieuit.telephony_sample.interfaces.OnNewMessageListener;
 import com.hieuit.telephony_sample.interfaces.RecyclerItemClickListener;
 import com.hieuit.telephony_sample.models.ContactModel;
 import com.hieuit.telephony_sample.models.MessageModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
     RecyclerView recyclerView;
     MessageContactAdapter customAdapter;
     ArrayList<ContactModel> contactModels;
+    private SmsBroadcastReceiver smsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +63,11 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("hieudt","onItemClick" + position);
                         Intent myIntent = new Intent(MainActivity.this, ActivitySmsDetailedView.class);
                         myIntent.putExtra("contact", contactModels.get(position)); // sending our object. In Kotlin is the same
-                        startActivity(myIntent);
+                        myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
+
+                        startActivity(myIntent);
+                        someActivityResultLauncher.launch(myIntent);
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
@@ -70,6 +86,44 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, PERMISSIONS_REQUEST_READ_CONTACTS);
         }
 
+        OnNewMessageListener onNewMessageListener = contactModel -> {
+            if(contactModels.contains(contactModel)){
+                int index = contactModels.indexOf(contactModel);
+                contactModels.get(index).getMessages().add(0,contactModel.getMessages().get(0));
+            }else{
+                contactModels.add(contactModel);
+            }
+            sortContact();
+        };
+        smsListener = new SmsBroadcastReceiver(onNewMessageListener);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.provider.Telephony.SMS_RECEIVED");
+        filter.addAction("android.provider.Telephony.SMS_RECEIVED");
+        if (getContext() != null)
+        {
+            getApplication().registerReceiver(smsListener,
+                    filter);
+
+        }
+
+    }
+
+    private void sortContact() {
+        for (int i = 0; i < contactModels.size(); i++) {
+            contactModels.get(i).sortMessageToNewest();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            contactModels.sort(((o1, o2) -> o2.getLastTime().compareTo(o1.getLastTime())));
+        }
+        customAdapter.notifyDataSetChanged();
+    }
+
+    private void smsReceiverHandler() {
+        // Get an instance of SmsRetrieverClient, used to start listening for a matching
+        // SMS message.
+
+
     }
 
     @Override
@@ -86,15 +140,8 @@ public class MainActivity extends AppCompatActivity {
     private  void showContact(){
         getContact("content://sms/inbox");
         getContact("content://sms/sent");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            contactModels.sort((o1, o2) -> {
-                if(o1.getMessages().size() > 0 && o2.getMessages().size() > 0){
-                    return o2.getMessages().get(0).getLastTime().compareTo(o1.getMessages().get(0).getLastTime());
-                }
-                return 0;
-            });
-        }
-        customAdapter.notifyDataSetChanged();
+
+        sortContact();
 
     }
     private void getContact(String contentPath){
@@ -120,6 +167,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         c.close();
-        customAdapter.notifyDataSetChanged();
+        sortContact();
     }
+
+    // You can do the assignment inside onAttach or onCreate, i.e, before the activity is displayed
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK || result.getResultCode()== Activity.RESULT_CANCELED) {
+                        // There are no request codes
+                        contactModels.clear();
+                        showContact();
+
+
+                    }
+                }
+            });
+
+
 }
